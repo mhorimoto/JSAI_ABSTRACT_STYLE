@@ -7,6 +7,13 @@
 %  pLaTeX / LuaLaTeX 両対応の統合版
 %  使用するエンジンを自動判別し、適切な日本語処理に切り替える。
 %
+%  【main.tex の書き方】（両エンジン共通）
+%    \documentclass{jsaishoshiki}    % オプション不要
+%    ...
+%    \begin{multicols}{2}            % オプション不要
+%    ...
+%    \end{multicols}
+%
 %  【Ubuntu でのインストール】
 %    sudo apt install texlive-luatex texlive-lang-japanese \
 %                     texlive-latex-extra texlive-science  \
@@ -39,6 +46,16 @@
     {This class requires pLaTeX or LuaLaTeX}%
     {Compile with `platex` or `lualatex`.}%
 \fi\fi
+
+% ----------------------------------------------------------------------
+% pLaTeX のときは dvipdfmx をグローバルドライバとして指定
+% （これにより main.tex で \documentclass[dvipdfmx]{jsaishoshiki} と書く必要がなくなる）
+% ----------------------------------------------------------------------
+\if@jsai@ptex
+  \PassOptionsToPackage{dvipdfmx}{graphicx}
+  \PassOptionsToPackage{dvipdfmx}{xcolor}
+  \PassOptionsToPackage{dvipdfmx}{hyperref}
+\fi
 
 % ----------------------------------------------------------------------
 % ベースクラス
@@ -107,7 +124,17 @@
 \fi
 
 % ----------------------------------------------------------------------
-% 本文フォントサイズ（両エンジン共通: 9pt / 行間 13pt）
+% multicols のカラム間隔（エンジン別）
+% main.tex 側で \begin{multicols}{2} と書くだけで適切な間隔になるよう設定
+% ----------------------------------------------------------------------
+\if@jsai@luatex
+  \setlength{\columnsep}{10mm}
+\else
+  \setlength{\columnsep}{30pt}
+\fi
+
+% ----------------------------------------------------------------------
+% 本文フォントサイズ
 % ----------------------------------------------------------------------
 \renewcommand{\normalsize}{\fontsize{9pt}{13pt}\selectfont}
 
@@ -218,7 +245,7 @@
 \titlespacing{\subsection}{-1em}{3pt}{0pt}
 
 % ----------------------------------------------------------------------
-% キャプション・リスト・ページスタイル（共通）
+% キャプション・リスト・ページスタイル
 % ----------------------------------------------------------------------
 \captionsetup{font={footnotesize}, skip=2pt}
 \setlist[itemize]{leftmargin=*,nosep,labelindent=0pt,labelsep=0.5em}
