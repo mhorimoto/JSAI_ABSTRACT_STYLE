@@ -1,0 +1,191 @@
+\documentclass{jsaishoshiki}
+%
+%  初版 2026/03/16
+%  第２版 2026/03/19 空白調整
+%  第３版 2026/03/30
+%
+\title{園芸施設全体のスマート化を実現する\\ノーコード \UECS ノードの実用性検証}
+\author{〇堀本正文\supscript{1)},Nayeen Al AMIN\supscript{1)},Pham Thanh Dong\supscript{2)},
+  光岡宗司\supscript{2)},安武大輔\supscript{2)},\\
+  尾崎剛教\supscript{4)},古賀正治\supscript{4)},岡安崇史\supscript{2,3)}}
+\affiliation{1)九州大学大学院生物資源環境科学府，〒819-0395 福岡市西区元岡744 \\
+2)九州大学大学院農学研究院，〒819-0395 福岡市西区元岡744 \\
+3)高知大学IoP共創センター，〒783-8502 南国市物部乙 200 \\
+4)株式会社welzo 〒812-0013 福岡市博多区博多駅東1丁目14-3}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+温室環境の精密制御は安定生産・作物品質向上・資源効率の最大化を実現する不可欠な基盤技術となっている．
+この技術を安価に実現することを目的として考案されたユビキタス環境制御システム（UECS）は，%
+メーカの枠を超えた自由なシステム構築を可能にし，考案から約20年が経過した．
+UECSはオープンな規格として普及が期待されてきたが，%
+既存の実装（UARDECS等）やArduinoを用いたDIYアプローチでは，%
+センサや通信モジュールのハードウェア構築，%
+マイコンのプログラミング環境の整備など，高度な専門スキルが求められる．
+そのため，ITや電子工作に不慣れな一般の農業従事者にとっては導入障壁が高く，%
+現場への普及が十分に進んでいないのが実情である．
+本研究では，こうした課題を解決し，%
+IoTを活用したスマート農業の実践に必要なスキル障壁を大幅に低減するため，%
+プログラミングを不要とする「ノーコード」および「ローコード」の思想に基づいた%
+UECS対応の計測・制御ハードウェア（M302N，M304）およびソフトウェアを新たに開発した．
+本稿では，開発したシステムの構成と機能概要を述べるとともに，
+実際の農業生産現場における運用を通じた実効性と妥当性の検証結果について報告する．
+\end{abstract}
+
+\keywords{環境制御，スマート農業，UECS，ノーコード}
+\setlength{\columnsep}{10mm}
+\begin{multicols}{2}
+  
+\section{緒言}
+温室環境の精密制御は，安定生産や資源効率の最大化に不可欠な基盤技術である．%
+星ら（2004）が提唱した「UECS」は，%
+メーカーの枠を超えた自由なシステム構築を可能にするオープンな規格として普及が期待されてきた．%
+しかし，既存の実装（UARDECS等）やDIYアプローチでは，%
+ハードウェア構築やプログラミング環境の整備に高度な専門スキルが求められる．%
+このスキル障壁が，一般の農業従事者への普及を阻む大きな要因となっている．
+
+本研究では，こうした課題を解決し，スマート農業の実践に必要なハードルを大幅に低減するため，%
+プログラミングを不要とする「ノーコード」および「ローコード」の思想に基づいたUECS対応ハードウェア%
+（M302N，M304）を新たに開発した．
+本稿では，開発したシステムの構成と機能概要を述べるとともに，%
+実際の生産現場における運用を通じた実効性と妥当性の検証結果について報告する．
+
+\section{材料及び方法}
+\subsection{ノーコード計測ノード（M302N）}
+M302Nは，Arduino NANO v3およびLANコントローラ（W5500）を%
+含む全機能を100mm×56mmの単一基板に集約した計測装置である．
+基板は農業用の塩ビパイプ（VU50サイズ）に格納可能な形状とし，
+LANケーブルを用いた簡易PoEによるDC12V電力供給に対応している
+(図\ref{fig:layout_1})．
+センサ（SHT4x，CO$_2$センサ，土壌水分センサ等）%
+に対応するCCM（UECS通信制御情報）をEEPROM領域にテーブル形式で事前定義している．
+利用者は接続したセンサの「Validフラグ」をTRUEに設定するのみで計測・送信を開始できるノーコード仕様とした．
+プログラミングを一切必要としない．
+これにより，製造担当者や生産者自身による柔軟な構成変更が可能となった．
+
+\subsection{制御ノード（M304）}
+M304は，Arduino MEGAをベースに開発し本装置は，%
+ネットワーク上の他ノードから送信されるCCMを受信して制御判断を行う．
+本装置は以下の条件を組み合わせた複合制御アルゴリズムをノーコードで実装している．
+\begin{itemize}
+\item 時刻ベースタイマー制御：1秒単位で最大約18時間までの動作設定が可能であり，%
+  最大30通りの制御パターンを管理する．
+\item 複合的環境判断制御：受信した最大10種類の環境情報を条件として利用し，%
+  時刻設定ごとに最大5つの外部条件と比較判定を行う．%
+  判定の結果で8チャンネルのリレーを動作させることで，%
+  多様な制御シーケンスが可能である．
+\end{itemize}
+
+\subsection{遠隔保守ゲートウェイ（UECSGW）}
+
+システムのインターネットとの橋渡しおよび設定環境として，Linuxベースの「UECSGW」を導入した．
+本ゲートウェイは，PCやスマートフォン等のWebブラウザから機器にアクセスし，%
+制御パラメータを設定できるユビキタス環境を提供する(図\ref{fig:layout_2}，\ref{fig:layout_4})．
+
+\subsection{実証試験環境および検証方法}
+開発したシステムの有用性と妥当性を検証するため，以下の2か所の圃場にて実証試験を行った．
+\begin{enumerate}
+\item welzo実験農場「HOUSE7」： 3連棟ハウス（計6エリア）において，M304を6台，%
+  各エリアにM302Nを設置した．側窓，谷窓，暖房機，クーラー，CO$_2$発生装置，換気扇，循環扇，%
+  灌水・ミスト等，ハウス内の全設備を本システムにより統合的に制御した．
+\item 協力農家圃場「T-House」（宮崎県）： キュウリを栽培するハウスにおいて，%
+  改良型M302Nによる微気象および土壌環境の計測と，%
+  M304（1台）を用いた灌水制御を実施した．
+\end{enumerate}
+
+システムの妥当性検証として，
+ネットワーク上に送信されるすべてのUECSパケットを収集し，%
+データベースに記録した．%
+評価においては，%
+RRD形式のデータから生成したグラフを目視確認し通信の安定性を評価するとともに，%
+蓄積データと制御ノードの動作記録を照合する手法を用いた．
+
+\section{結果および考察}
+図\ref{fig:layout_5}はHOUSE7の灌水制御の結果を示す．%
+灌水条件として，夜間の培土乾燥を解消するため08:00には光量子とは関係なく5分間灌水を行う．
+夜間は灌水していないため培土は乾燥しきっている．
+5分間の灌水で約5Lの排液が確認できた．
+
+09:00〜15:10まで，光量子量が200$\mu$mol/m$^2$/s以上で，
+累積排液量が20L未満ならば1時間に3分間灌水を行う設定にしている．
+当日は09:00と10:00での光量子量が200$\mu$mol/m$^2$/s未満のため2回灌水は行われなかった．
+
+11:00の光量子量は1100$\mu$mol/m$^2$/sを超えているため3分間の灌水を実施した．
+その後，光量子量が増大したため，蒸散が増進し排液量の増加は微量である．
+
+12:00の光量子量は11:00の値よりも大きく3分間の灌水が実施される．
+灌水後からの光量子量が減少し200$\mu$mol/m$^2$/s未満になった．
+蒸散が減少したため排液量が増加した．
+排液量の総量が20Lを超えなかったため，排液量制限による灌水停止は生じなかった．
+時刻と光量子量と排液量の条件による灌水制御が行われていることが確認できた．
+
+UECSによる制御を行ったことで効果的なタイミングを逃すことの無い灌水を実現できた．
+また，蓄積されたデータは，環境と制御動作の制御プロファイルの変更の検討に有効なデータとなる．
+
+\section{結言}
+本研究により，Webインタフェースを介した条件設定のみで，%
+時刻依存制御や複数計測値に基づく複合環境制御が可能となることが示された．
+2農場における検証実験により，%
+開発したノードのみで園芸施設の一部および全体の環境制御が行えることを示した．
+
+\vspace{-1em}
+% --- 図1, 2, 3 の複合レイアウト（multicolsの1カラム幅内） ---
+\begin{figure}[H]
+  \centering
+  % 左側：図1と図2を縦に並べるブロック
+  \begin{minipage}[b]{0.7\columnwidth}
+    \centering
+    \begin{minipage}{\textwidth}
+      \centering
+      %\includegraphics[width=\textwidth]{M302N2illust.pdf}
+      \includegraphics[width=65mm,height=40mm]{example-image-a}
+      \caption{M302Nの外観}
+      \label{fig:layout_1}
+    \end{minipage}
+    \vspace{1em} % 図1と図2の間の余白
+    \begin{minipage}{\textwidth}
+      \centering
+      %\includegraphics[width=\textwidth]{uecsgw-m304.pdf}
+      \includegraphics[width=65mm,height=34mm]{example-image-b}
+      \caption{接続構成}
+      \label{fig:layout_2}
+    \end{minipage}
+  \end{minipage}
+  \centering
+  \begin{minipage}{0.9\columnwidth}
+    \centering
+    %\includegraphics[width=\textwidth]{M304config.eps}
+    \includegraphics[width=55mm,height=36mm]{example-image-c}
+    \caption{M304設定画面(例)}
+    \label{fig:layout_4}
+  \end{minipage}
+  
+%  \vspace{1em}% ここの間を開けたい
+  
+  \begin{minipage}{1.1\columnwidth}
+    \centering
+    \scalebox{0.20}[0.20]{%
+      \includegraphics[width=356mm,height=178mm]{example-image}
+    }
+    \caption{灌水制御の結果}
+    \label{fig:layout_5}
+  \end{minipage}
+\end{figure}
+
+\vspace{-3em}
+
+\section{謝辞}
+本研究は，(株)welzo との共同研究により実現したものである．ここに記して謝意を表する．
+
+\section{引用文献}
+\begin{references}
+Hoshi, T., Hayashi, Y. and Uchino H. (2004): Development of a decentralized, autonomous greenhouse environment control system in ubiquitous computing and Internet environment, Proc. of 2004 AFITA/WCCA, Bangkok, Thailand, 490-495.
+\end{references}
+
+\end{multicols}
+
+\end{document}
+

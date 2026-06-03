@@ -1,0 +1,14 @@
+all: main.pdf
+
+main.pdf: main.dvi
+	dvipdfmx main.dvi
+
+main.dvi: main.tex jsaishoshiki.cls 
+	platex main.tex
+	platex main.tex
+
+clean:
+	@rm main.dvi
+
+dist:
+	zip -9 ../JSAI_Template.zip main.tex jsaishoshiki.cls Makefile README.md LICENSE.txt
