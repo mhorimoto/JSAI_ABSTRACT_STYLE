@@ -62,7 +62,10 @@ sudo mktexlsr
 ## 応用
 ### make による一括コンパイル
 makeコマンドにより必要なファイルの変更が有った際に的確なLaTeXコンパイルをさせる。  
+以下のMakefileは、pLaTeXを使用する場合です。
+
 ```makefile
+# Makefile For pLaTeX
 all: main.pdf
 
 main.pdf: main.dvi

@@ -3,6 +3,7 @@
 %     堀本　正文 <horimoto.masafumi.470@s.kyushu-u.ac.jp>
 %     1st  Mar. 2025
 %     19th Mar. 2026
+%     4th Jun. 2026
 %
 %  pLaTeX / LuaLaTeX 両対応の統合版
 %  使用するエンジンを自動判別し、適切な日本語処理に切り替える。
@@ -233,6 +234,9 @@
   \titleformat{\subsection}
     {\normalfont\fontsize{9}{0}\selectfont\gothicfont\bfseries}
     {}{1em}{}[\mcfamily]
+  \titleformat{\subsubsection}
+    {\normalfont\fontsize{9}{0}\selectfont\gothicfont\bfseries}
+    {}{1em}{}[\mcfamily]
 \else
   \titleformat{\section}
     {\normalfont\fontsize{11}{13}\selectfont\sffamily\bfseries}
@@ -240,9 +244,13 @@
   \titleformat{\subsection}
     {\normalfont\fontsize{9}{0}\selectfont\sffamily\bfseries}
     {}{1em}{}
+  \titleformat{\subsubsection}
+    {\normalfont\fontsize{9}{0}\selectfont\sffamily\bfseries}
+    {}{1em}{}
 \fi
 \titlespacing{\section}{0pt}{1em}{0pt}
 \titlespacing{\subsection}{-1em}{3pt}{0pt}
+\titlespacing{\subsubsection}{-1em}{3pt}{0pt}
 
 % ----------------------------------------------------------------------
 % キャプション・リスト・ページスタイル
